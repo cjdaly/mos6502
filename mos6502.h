@@ -6,6 +6,7 @@
 // Description : A MOS 6502 CPU emulator written in C++
 //============================================================================
 
+#include <bitset>
 #include <iostream>
 #include <stdint.h>
 using namespace std;
@@ -188,4 +189,6 @@ public:
 		int32_t cycles,
 		uint64_t& cycleCount,
 		CycleMethod cycleMethod = CYCLE_COUNT);
+	
+	void Status();
 };

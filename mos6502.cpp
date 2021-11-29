@@ -24,9 +24,12 @@ int main() {
 	cout << "MOS6502 Emulator!" << endl;
 	
 	mos6502 m = mos6502(busRead, busWrite);
-	uint64_t cycleCount;
-	
-	m.Run(1, cycleCount, mos6502::INST_COUNT);
+
+	m.Reset();
+	m.Status();
+
+	//uint64_t cycleCount;
+	// m.Run(1, cycleCount, mos6502::INST_COUNT);
 	// m.Reset();
 	
 	cout << "Bye!" << endl;
@@ -928,6 +931,17 @@ void mos6502::Run(
 			cycleMethod == CYCLE_COUNT        ? instr.cycles
 			/* cycleMethod == INST_COUNT */   : 1;
 	}
+}
+
+void mos6502::Status() {
+	cout << "PC:" << hex << uppercase << (uint16_t)pc;
+	cout << "\tSP:" << hex << uppercase << (uint16_t)sp;
+	cout << "\tstatus:" << hex << uppercase << (uint16_t)status;
+	cout << "[" << bitset<8>(status) << "]";
+	cout << "\t\tA:" << hex << uppercase << (uint16_t)A;
+	cout << "\tX:" << hex << uppercase << (uint16_t)X;
+	cout << "\tY:" << hex << uppercase << (uint16_t)Y;
+	cout << endl;
 }
 
 void mos6502::Exec(Instr i)

@@ -1,6 +1,38 @@
 
 #include "mos6502.h"
 
+#define MEM_SIZE 2<<16
+uint8_t mem[MEM_SIZE];
+
+void busWrite(uint16_t a, uint8_t v) {
+	cout << "BusWrite  addr: " << a << ", val: " << to_string(v) << endl;
+	mem[a] = v;
+}
+
+uint8_t busRead(uint16_t a) {
+	uint8_t v = mem[a];
+	cout << "BusRead  addr: " << a << ", mem: " << to_string(v) << endl;
+	return v;
+}
+
+int main() {
+	// initialize memory
+	for (int i=0; i < MEM_SIZE; i++) {
+		mem[i]=0;
+	}
+	
+	cout << "MOS6502 Emulator!" << endl;
+	
+	mos6502 m = mos6502(busRead, busWrite);
+	uint64_t cycleCount;
+	
+	m.Run(1, cycleCount, mos6502::INST_COUNT);
+	// m.Reset();
+	
+	cout << "Bye!" << endl;
+	return 0;
+}
+
 mos6502::mos6502(BusRead r, BusWrite w)
 {
 	Write = (BusWrite)w;

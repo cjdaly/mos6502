@@ -1,36 +1,61 @@
 
 #include "mos6502.h"
 
-#define MEM_SIZE 2<<16
+#define MEM_SIZE 65536
 uint8_t mem[MEM_SIZE];
 
 void busWrite(uint16_t a, uint8_t v) {
-	cout << "BusWrite  addr: " << a << ", val: " << to_string(v) << endl;
+	cout << "BusWrite  addr: " << hex << uppercase << a;
+	cout << ", val: " << hex << uppercase << (uint16_t)v << endl;
 	mem[a] = v;
 }
 
 uint8_t busRead(uint16_t a) {
 	uint8_t v = mem[a];
-	cout << "BusRead  addr: " << a << ", mem: " << to_string(v) << endl;
+	cout << "BusRead  addr: " << hex << uppercase << a;
+	cout << ", mem: " << hex << uppercase << (uint16_t)v << endl;
 	return v;
 }
 
-int main() {
-	// initialize memory
+void init_memory() {
 	for (int i=0; i < MEM_SIZE; i++) {
-		mem[i]=0;
+		mem[i]=0xEA;
 	}
 	
+	// https://eater.net/downloads/makerom.py
+	uint16_t a = 0x8000;
+	mem[a++]=0xA9; mem[a++]=0xFF;                 // # lda #$ff
+	mem[a++]=0x8D; mem[a++]=0x02; mem[a++]=0x60;  // # sta $6002
+
+	mem[a++]=0xA9; mem[a++]=0x55;                 // # lda #$55
+	mem[a++]=0x8D; mem[a++]=0x00; mem[a++]=0x60;  // # sta $6000
+
+    mem[a++]=0xA9; mem[a++]=0xAA;                 // # lda #$aa
+	mem[a++]=0x8D; mem[a++]=0x00; mem[a++]=0x60;  // # sta $6000
+
+	mem[a++]=0x4C; mem[a++]=0x05; mem[a++]=0x80;  // # jmp $8005
+
+	a=(uint16_t)0xFFFC;
+	mem[a++]=0x00;
+	mem[a++]=0x80;
+}
+
+int main() {
 	cout << "MOS6502 Emulator!" << endl;
+
+	init_memory();
 	
 	mos6502 m = mos6502(busRead, busWrite);
 
 	m.Reset();
 	m.Status();
 
-	//uint64_t cycleCount;
-	// m.Run(1, cycleCount, mos6502::INST_COUNT);
-	// m.Reset();
+	uint64_t cycleCount = 0;
+	for (int i=0; i<16; i++) {
+		m.Run(1, cycleCount, mos6502::INST_COUNT);
+		// cout << "CC: " << cycleCount << endl;
+		m.Status();
+	}
 	
 	cout << "Bye!" << endl;
 	return 0;
